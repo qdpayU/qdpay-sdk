@@ -3,6 +3,7 @@ package qdpay
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/qdpayU/qdpay-sdk/encrypt"
 	"io/ioutil"
@@ -114,8 +115,10 @@ func (c Client) SendPostRequest(url string, payload interface{}) (string, error)
 	if err != nil {
 		return "", err
 	}
-	log.Println("body response")
-	log.Println(payloadResponse["payload"])
+
+	if payloadResponse["errorCode"] != "" {
+		return "", errors.New(payloadResponse["errorMessage"])
+	}
 	//return "", err
 	result, err := encrypt.DecryptAESCBC(c.AesKey, payloadResponse["payload"])
 	if err != nil {
